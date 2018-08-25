@@ -111,6 +111,7 @@ def generate_children(state, depth):
 
     return children
 
+#generate child nodes
 def generate_children_nodes(state, depth):
 
     children = generate_children(state, depth)
@@ -122,6 +123,7 @@ def generate_children_nodes(state, depth):
 
     return children_nodes
 
+# generate generic node
 def gen_node(state, prev_action, children, depth):
     return {
         'state': state,
@@ -130,6 +132,7 @@ def gen_node(state, prev_action, children, depth):
         'depth': depth
     }
 
+# key name of specific state depth pairing
 def state_depth_string(state, depth):
     state_str_raw = []
 
@@ -141,9 +144,11 @@ def state_depth_string(state, depth):
     depth = depth
     return state_str + "_" + str(depth)
 
+# get key for a specific node
 def get_node_key(node):
     return state_depth_string(node['state'], node['depth'])
 
+# generate the state tree
 def gen_tree():
 
 
@@ -185,6 +190,7 @@ def gen_tree():
     tree['depth'] = depth
     return tree
 
+# display the tree
 def display_tree(tree):
     print (tree)
 
@@ -197,6 +203,7 @@ def display_tree(tree):
         for node in depth_nodes:
             print (node['state'])
 
+# play the actions out
 def simulate_solution(actions):
     current_state = state_initial
 
@@ -220,6 +227,7 @@ def simulate_solution(actions):
 
     print ("done")
 
+# describe the actions taken
 def describe_action(action, alternate):
 
     cannibals = action[1]
@@ -235,6 +243,7 @@ def describe_action(action, alternate):
 
     print ("Take " + str(cannibals) + " cannibals and " + str(missionaries) + " missionaries with the " + str(boat) + " boat " + ending_phrase)
 
+# describe the current state
 def describe_state(state):
     cannibals = state[1]
     missionaries = state[0]
@@ -249,7 +258,7 @@ def describe_state(state):
     print (str(3 - missionaries) + " missionaries on the right bank")
     print (str(1 - boat) + " boat on the right bank")
 
-
+# get the list of actions to win by traversing in reverse from the goal node i.e backtrack
 def get_winning_path(tree):
 
     actions_to_goal = []
@@ -271,6 +280,7 @@ def get_winning_path(tree):
 
     return actions_to_goal[::-1]
 
+# random tests
 def run_tests():
     print ("tests 001:")
     res_states = apply_actions(state_initial)
@@ -283,6 +293,7 @@ def run_tests():
         print (state)
     print()
 
+# runs the actual program
 def run():
     print("running program")
 
@@ -294,7 +305,6 @@ def run():
 
     winning_actions = get_winning_path(state_tree)
     simulate_solution(winning_actions)
-
 
 if __name__ == "__main__":
     run()
