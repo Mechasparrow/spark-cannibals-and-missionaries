@@ -20,111 +20,125 @@ actions = [
 state_initial = [3, 3, 1]
 goal_state = [0, 0, 0]
 
-#checks if the state is valid
-# you cant have cannibals outnumber missionaries...
-# or they will eat the missionaries
+# generates all possible states
+def possible_states():
 
-def generate_node(state, prev_action, children):
-    return {
-        "state": state,
-        "prev_action": prev_action,
-        "children": children
-    }
+    pos_states = []
 
-def valid_state(state):
-    cannibals = state[1]
-    missionaries = state[0]
-    wrong_side_boat = state[2]
+    for b in range(0,2):
+        for c in range(0,4):
+            for m in range(0,4):
+                pos_states.append([m, c, b])
 
-    if (cannibals > 3 or missionaries > 3 or wrong_side_boat > 1):
-        return False
+    return pos_states
 
-    return (cannibals <= missionaries)
-
+# Checks if goal state is reached
 def is_goal_state(state):
     return (state == goal_state)
 
-def apply_actions_w_nodes (state):
-    return apply_actions(state, nodes = True)
+# Checks if state is even valid
+def is_state_valid(state):
+    cannibals = state[1]
+    missionaries = state[0]
 
-def apply_actions(state, nodes = False):
+    return (not cannibals > missionaries)
 
-    next_states = []
+
+# function that applies the action vector and yield the resulting state
+def apply_action(state, action, mode = 1):
+
+    res_state = [state[0] + (mode * action[0]), state[1] + (mode * action[1]), state [2] + (mode * action[2])]
+    return res_state
+
+# applies all possible actions to a given state and returns produced raw states
+def apply_actions(state, mode = 1):
+
+    res_states = []
 
     for action in actions:
-        next_state = apply_action(state, action)
+        res_states.append(apply_action(state, action, mode))
 
-        if (valid_state(next_state)):
-            if (nodes == False):
-                next_states.append(next_state)
-            elif (nodes == True):
-                child_node = generate_node(next_state, action, None)
-                next_states.append(child_node)
+    return res_states
 
-    return next_states
+# filters through states and returns the valid ones
+def filter_valid_states(states):
 
-# Applies an action
-def apply_action(state, action, reverse = False):
-    boat_on_wrong_side = (state[2]) == 1
+    filtered_states = []
 
-    # make a copy of the current state (just for immutability)
-    new_state = copy.copy(state)
+    for state in states:
+        if (is_state_valid(state)):
+            filtered_states.append(state)
 
-    # determines whether vector should be added or subtracted if the boat is on the wrong side
-    vector_multiplier = 1
+    return filtered_states
 
-    if (boat_on_wrong_side):
-        vector_multiplier = -1
+# generates children for a specific depth and state
+def generate_children(state, depth):
+
+    mode = 1
+
+    if ((depth + 1) % 2 == 0):
+        mode = 1
     else:
-        vector_multiplier = 1
+        mode = -1
 
-    if (reverse):
-        vector_multiplier *= -1
+    raw_children = apply_actions(state, mode)
+    children = filter_valid_states(raw_children)
 
-    # apply vector addition/subtraction to the state to yield the new state
-    for i in range(0, vector_length):
-        new_state[i] = new_state[i] + (vector_multiplier * action[i])
+    return children
 
-    return new_state
+def gen_node(state, prev_action, children, depth):
+    return {
+        'state': state,
+        'prev_action': prev_action,
+        'children': children,
+        'depth': depth
+    }
 
-# figure this out
-def recur_children(children):
-    new_children = copy.copy(children)
-    final_children = []
+def gen_tree():
 
-    for i in range(0, len(new_children)):
-        new_children[i]['children'] = apply_actions_w_nodes(new_children[i]['state'])
+    tree = gen_node(state_initial, None, [], 0)
 
-    goal_found = False
+    ## TODO implement state tree gen
 
-    for child in new_children:
-        for c in child['children']:
 
-            if (is_goal_state(c['state'])):
-                goal_found = True
-
-    if (goal_found == False):
-        for i in range(0, len(new_children)):
-            new_children[i]['children'] = recur_children(new_children[i]['children'])
-
-    return new_children
-
-#figure this out
-def gen_tree(state=state_initial, prev_action = None):
-    children = apply_actions_w_nodes(state)
-
-    new_children = recur_children(children)
-
-    tree = generate_node(state, prev_action, new_children)
 
     return tree
 
 
 def run():
     print("running program")
+    print ("possible states")
 
-    tree = gen_tree()
-    print ("tree: ", str(tree))
+    pos_states = possible_states()
+    for pos_state in pos_states:
+        print (pos_state)
+
+    print()
+
+    print ("starting state is ")
+    print (state_initial)
+    print()
+
+    print ("goal state is ")
+    print (goal_state)
+    print()
+
+    print ("generating state tree...")
+    state_tree = gen_tree()
+
+    print (state_tree)
+    print()
+
+    # Tests
+    print ("tests 001")
+    res_states = apply_actions(state_initial, mode = -1)
+    print (res_states)
+    print()
+
+    print ("tests 002")
+    res_states = generate_children(state_initial, 0)
+    print (res_states)
+    print()
 
     pass
 
